@@ -1,0 +1,17 @@
+# Only the static index.html needs to deploy — exclude the old Vite project files
+node_modules
+src
+dist
+public
+package.json
+package-lock.json
+postcss.config.js
+tailwind.config.js
+vite.config.ts
+vite.config.js
+vite.config.d.ts
+tsconfig.json
+tsconfig.node.json
+tsconfig.tsbuildinfo
+tsconfig.node.tsbuildinfo
+.env.local
