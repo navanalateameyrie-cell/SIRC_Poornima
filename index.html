@@ -109,13 +109,21 @@
   .hero-ctas{display:flex; flex-wrap:wrap; gap:.8rem; margin-top:1.7rem}
 
   .portrait-wrap{position:relative; display:flex; justify-content:center; align-items:flex-end}
-  .portrait-frame{position:relative; width:100%; max-width:430px}
-  .portrait-inner{position:relative}
+  .portrait-frame{position:relative; width:100%; max-width:430px; animation:heroRise 1s cubic-bezier(.2,.75,.25,1) both}
+  .portrait-inner{position:relative; animation:heroFloat 6s ease-in-out 1s infinite}
   .portrait-inner img{width:100%; height:auto; object-fit:contain; display:block; filter:drop-shadow(0 20px 42px rgba(0,0,0,.4))}
+  /* Soft glow behind the portrait */
+  .portrait-inner::before{content:""; position:absolute; left:50%; top:46%; width:78%; height:70%; transform:translate(-50%,-50%); border-radius:50%; background:radial-gradient(circle,rgba(247,198,49,.28),rgba(247,198,49,0) 70%); filter:blur(8px); z-index:-1; animation:heroGlow 6s ease-in-out infinite}
   /* Brochure-style square ballot box */
-  .ballot-box{position:absolute; top:22px; right:-8px; z-index:4; background:linear-gradient(155deg,var(--pink),var(--pink-deep)); color:#fff; border-radius:16px; padding:.7rem 1.2rem 1rem; text-align:center; box-shadow:0 16px 34px rgba(200,29,119,.45); font-family:var(--head); line-height:1}
+  .ballot-box{position:absolute; top:22px; right:-8px; z-index:4; background:linear-gradient(155deg,var(--pink),var(--pink-deep)); color:#fff; border-radius:16px; padding:.7rem 1.2rem 1rem; text-align:center; box-shadow:0 16px 34px rgba(200,29,119,.45); font-family:var(--head); line-height:1; animation:ballotIn .8s cubic-bezier(.2,.9,.3,1.4) .5s both, ballotPulse 3s ease-in-out 1.6s infinite}
   .ballot-box .t{display:block; font-size:.82rem; font-weight:700; letter-spacing:.02em}
   .ballot-box .no{display:block; font-size:2.7rem; font-weight:800; margin-top:.15rem}
+  @keyframes heroRise{from{opacity:0; transform:translateY(34px) scale(.97)}to{opacity:1; transform:none}}
+  @keyframes heroFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+  @keyframes heroGlow{0%,100%{opacity:.6; transform:translate(-50%,-50%) scale(1)}50%{opacity:1; transform:translate(-50%,-50%) scale(1.06)}}
+  @keyframes ballotIn{from{opacity:0; transform:scale(.4) rotate(-8deg)}to{opacity:1; transform:none}}
+  @keyframes ballotPulse{0%,100%{box-shadow:0 16px 34px rgba(200,29,119,.45)}50%{box-shadow:0 16px 34px rgba(200,29,119,.45),0 0 0 8px rgba(233,30,140,.16)}}
+  @media (prefers-reduced-motion:reduce){ .portrait-frame,.portrait-inner,.portrait-inner::before,.ballot-box{animation:none!important} }
 
   /* Sections */
   .sec{padding:3.8rem 0; position:relative}
