@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Ballot No. 11">
+  <rect width="64" height="64" rx="14" fill="#4A1426"/>
+  <rect x="6" y="6" width="52" height="52" rx="11" fill="#C81D77"/>
+  <text x="32" y="44" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="32" font-weight="700" fill="#ffffff">11</text>
+</svg>
