@@ -7,26 +7,26 @@
 
 function detectKV(env) {
   const keys = Object.keys(env);
-  // URL: a REST URL from a KV/Redis/Upstash integration (any prefix the integration used)
+  // URL: any REST(ful) HTTPS URL from a KV/Redis/Upstash integration (any prefix)
   const urlKey = keys.find(
-    (k) => /REST/.test(k) && /URL$/.test(k) && /(KV|REDIS|UPSTASH)/i.test(k)
-  );
-  // Token: prefer a read-write token (skip READ_ONLY) from the same family
+    (k) => /REST/.test(k) && /URL$/.test(k) && /^https?:/i.test(String(env[k] || ''))
+  ) || keys.find((k) => /REST/.test(k) && /URL$/.test(k));
+  // Token: prefer a read-write token (skip READ_ONLY)
   const tokenKey =
-    keys.find(
-      (k) =>
-        /REST/.test(k) &&
-        /TOKEN$/.test(k) &&
-        /(KV|REDIS|UPSTASH)/i.test(k) &&
-        !/READ_ONLY/i.test(k)
-    ) ||
-    keys.find((k) => /REST/.test(k) && /TOKEN$/.test(k) && /(KV|REDIS|UPSTASH)/i.test(k));
+    keys.find((k) => /REST/.test(k) && /TOKEN$/.test(k) && !/READ_ONLY/i.test(k)) ||
+    keys.find((k) => /REST/.test(k) && /TOKEN$/.test(k));
   return {
     base: urlKey ? env[urlKey] : null,
     token: tokenKey ? env[tokenKey] : null,
     urlKey: urlKey || null,
     tokenKey: tokenKey || null,
   };
+}
+
+function storageKeyNames(env) {
+  return Object.keys(env).filter((k) =>
+    /(REST|REDIS|UPSTASH|KV|STORAGE)/i.test(k)
+  );
 }
 
 module.exports = async (req, res) => {
@@ -36,7 +36,13 @@ module.exports = async (req, res) => {
   const { base, token, urlKey, tokenKey } = detectKV(process.env);
 
   if (req.query && req.query.debug === '1') {
-    return res.status(200).json({ urlKey, tokenKey, hasBase: !!base, hasToken: !!token });
+    return res.status(200).json({
+      urlKey,
+      tokenKey,
+      hasBase: !!base,
+      hasToken: !!token,
+      storageKeys: storageKeyNames(process.env),
+    });
   }
 
   if (!base || !token) {
