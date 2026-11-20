@@ -114,6 +114,18 @@ module.exports = async (req, res) => {
   }
 
   const key = 'sirc_visits';
+
+  // One-time protected reset (removed after use)
+  if (req.query && req.query.reset === 'rst_9Qx72Lm4Vb8tKp') {
+    try {
+      if (redisUrl) await redisCommand(redisUrl, ['SET', key, '0']);
+      else if (rest.base && rest.token) await fetch(`${rest.base.replace(/\/$/, '')}/set/${key}/0`, { headers: { Authorization: `Bearer ${rest.token}` } });
+      return res.status(200).json({ count: 0, reset: true });
+    } catch (e) {
+      return res.status(200).json({ error: 'reset-failed', detail: String((e && e.message) || e) });
+    }
+  }
+
   const hit = req.method === 'POST' || (req.query && req.query.hit === '1');
 
   try {
