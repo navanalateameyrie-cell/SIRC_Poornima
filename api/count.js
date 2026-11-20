@@ -104,28 +104,9 @@ module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
 
   const rest = detectRest(process.env);
-  const { redisUrl, redisKey } = detectRedisUrl(process.env);
-
-  if (req.query && req.query.debug === '1') {
-    return res.status(200).json({
-      mode: rest.base && rest.token ? 'rest' : redisUrl ? 'redis' : 'none',
-      urlKey: rest.urlKey, tokenKey: rest.tokenKey, redisKey,
-    });
-  }
+  const { redisUrl } = detectRedisUrl(process.env);
 
   const key = 'sirc_visits';
-
-  // One-time protected reset (removed after use)
-  if (req.query && req.query.reset === 'rst_9Qx72Lm4Vb8tKp') {
-    try {
-      if (redisUrl) await redisCommand(redisUrl, ['SET', key, '0']);
-      else if (rest.base && rest.token) await fetch(`${rest.base.replace(/\/$/, '')}/set/${key}/0`, { headers: { Authorization: `Bearer ${rest.token}` } });
-      return res.status(200).json({ count: 0, reset: true });
-    } catch (e) {
-      return res.status(200).json({ error: 'reset-failed', detail: String((e && e.message) || e) });
-    }
-  }
-
   const hit = req.method === 'POST' || (req.query && req.query.hit === '1');
 
   try {
