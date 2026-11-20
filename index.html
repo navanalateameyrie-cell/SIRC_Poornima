@@ -283,7 +283,9 @@
   .pb-modal{position:relative; width:100%; max-width:540px; background:var(--cream); border-radius:20px; box-shadow:0 30px 70px rgba(61,15,30,.5); border:1px solid var(--line); overflow:hidden; animation:pbIn .25s ease}
   @keyframes pbIn{from{opacity:0; transform:translateY(16px)}to{opacity:1; transform:none}}
   @media (prefers-reduced-motion:reduce){ .pb-modal{animation:none} }
-  .pb-head{background:linear-gradient(135deg,var(--maroon),var(--maroon-deep)); color:#fff; padding:1.4rem 1.5rem 1.3rem}
+  .pb-head{display:flex; align-items:center; gap:1rem; background:linear-gradient(135deg,var(--maroon),var(--maroon-deep)); color:#fff; padding:1.3rem 1.5rem 1.3rem}
+  .pb-head-photo{flex:none; width:60px; height:70px; object-fit:cover; object-position:top center; border-radius:10px; border:2px solid var(--gold); box-shadow:0 4px 12px rgba(0,0,0,.3); background:#fff}
+  .pb-head-text{flex:1; min-width:0}
   .pb-eyebrow{font-family:var(--head); font-size:.68rem; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:var(--gold)}
   .pb-head h3{color:#fff; font-size:1.35rem; margin:.25rem 0 .3rem}
   .pb-head p{margin:0; font-size:.9rem; color:#f0dfe6}
@@ -297,6 +299,10 @@
   .pb-form .btn{min-height:50px; padding:.8rem 1.4rem}
   .pb-hint{margin:.7rem 0 0; font-size:.8rem; color:var(--muted)}
   .pb-result{margin-top:.9rem}
+  .pb-toolbar{display:flex; align-items:center; justify-content:space-between; gap:.6rem; margin-bottom:.7rem}
+  .pb-count{font-family:var(--head); font-weight:700; font-size:.72rem; letter-spacing:.03em; text-transform:uppercase; color:var(--muted)}
+  .pb-new{display:inline-flex; align-items:center; gap:.35rem; border:1.5px solid var(--pink); background:#fff; color:var(--pink); font-family:var(--head); font-weight:700; font-size:.78rem; padding:.4rem .9rem; border-radius:999px; cursor:pointer; transition:.2s}
+  .pb-new:hover{background:var(--pink); color:#fff}
   .pb-card{background:#fff; border:1px solid var(--line); border-top:3px solid var(--pink); border-radius:12px; padding:.98rem 1.05rem; box-shadow:var(--shadow)}
   .pb-card + .pb-card{margin-top:.82rem}
   .pb-name{font-family:var(--head); font-weight:800; color:var(--maroon); font-size:.95rem; margin-bottom:.08rem}
@@ -722,9 +728,12 @@
   <div class="pb-modal" role="dialog" aria-modal="true" aria-labelledby="pbTitle">
     <div class="pb-head">
       <button class="pb-close" id="pbClose" type="button" aria-label="Close">&times;</button>
-      <div class="pb-eyebrow">SIRC 2026 · Ballot No. 11</div>
-      <h3 id="pbTitle">Find Your Polling Booth</h3>
-      <p>Enter your <strong>Membership No.</strong> (e.g. ACS-12345 / FCS-10786) or <strong>Phone Number</strong>.</p>
+      <img class="pb-head-photo" src="candidate-head.webp" alt="CS Poornima Nattery Srinivasan" />
+      <div class="pb-head-text">
+        <div class="pb-eyebrow">SIRC 2026 · Ballot No. 11</div>
+        <h3 id="pbTitle">Find Your Polling Booth</h3>
+        <p id="pbSub">Enter your <strong>Membership No.</strong> (e.g. ACS-12345 / FCS-10786) or <strong>Phone Number</strong>.</p>
+      </div>
     </div>
     <div class="pb-body">
       <form class="pb-form" id="pbForm" autocomplete="off">
@@ -734,7 +743,7 @@
           Search
         </button>
       </form>
-      <p class="pb-hint">Search is instant — case-insensitive, ignores spaces, hyphens and +91. You can also enter just the number without the prefix (e.g. 10786).</p>
+      <p class="pb-hint" id="pbHint">Search is instant — case-insensitive, ignores spaces, hyphens and +91. You can also enter just the number without the prefix (e.g. 10786).</p>
       <div class="pb-result" id="pbResult" aria-live="polite"></div>
     </div>
   </div>
@@ -816,15 +825,22 @@
       '<p>Please check your <strong>Membership No.</strong> or <strong>Phone Number</strong> and try again, or contact the campaign helpline '+
       '<a href="tel:+918148906831">81489 06831</a> / visit <a href="https://www.icsi.edu/election-2026" target="_blank" rel="noopener">www.icsi.edu/election-2026</a>.</p></div>';
   }
+  var pbHint=$('#pbHint'), pbSub=$('#pbSub');
+  function toolbar(label){ return '<div class="pb-toolbar"><span class="pb-count">'+label+'</span><button type="button" class="pb-new">&#8634; New Search</button></div>'; }
+  function searchMode(on){ if(pbForm) pbForm.style.display=on?'':'none'; if(pbHint) pbHint.style.display=on?'':'none'; if(pbSub) pbSub.style.display=on?'':'none'; }
   function doSearch(){
     var q=pbInput.value;
     if(!q.trim()){ pbResult.innerHTML=''; return; }
     var hits=lookup(q);
-    if(!hits.length){ pbResult.innerHTML=renderEmpty(q); return; }
-    var html=''; for(var j=0;j<hits.length;j++){ html+=renderCard(hits[j]); }
+    if(!hits.length){ searchMode(true); pbResult.innerHTML=toolbar('No match')+renderEmpty(q); return; }
+    // result view: hide the search control and show candidate photo on top
+    searchMode(false);
+    var html=toolbar(hits.length+' match'+(hits.length>1?'es':'')+' found'); for(var j=0;j<hits.length;j++){ html+=renderCard(hits[j]); }
     pbResult.innerHTML=html;
   }
-  function openPB(){ if(!pbOverlay) return; pbOverlay.classList.add('open'); pbOverlay.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden'; setTimeout(function(){ try{ pbInput.focus(); }catch(e){} },60); }
+  function resetSearch(){ searchMode(true); pbInput.value=''; pbResult.innerHTML=''; try{ pbInput.focus(); }catch(e){} }
+  if(pbResult){ pbResult.addEventListener('click',function(e){ var b=e.target.closest ? e.target.closest('.pb-new') : null; if(b){ resetSearch(); } }); }
+  function openPB(){ if(!pbOverlay) return; resetSearch(); pbOverlay.classList.add('open'); pbOverlay.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden'; setTimeout(function(){ try{ pbInput.focus(); }catch(e){} },60); }
   function closePB(){ if(!pbOverlay) return; pbOverlay.classList.remove('open'); pbOverlay.setAttribute('aria-hidden','true'); document.body.style.overflow=''; }
   if(pbForm){ pbForm.addEventListener('submit',function(e){ e.preventDefault(); doSearch(); }); }
   if(pbClose){ pbClose.addEventListener('click',closePB); }
