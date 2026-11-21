@@ -25,10 +25,13 @@
     --line:#ece0c4;
     --head:"Poppins",system-ui,sans-serif;
     --body:"Inter",system-ui,sans-serif;
-    --maxw:1160px;
+    --maxw:1240px;
     --shadow:0 10px 30px rgba(61,16,30,.12);
     --shadow-lg:0 22px 54px rgba(61,16,30,.22);
   }
+  /* Fill wider desktop monitors (laptops stay ~as before) */
+  @media(min-width:1500px){ :root{ --maxw:1440px } }
+  @media(min-width:1800px){ :root{ --maxw:1600px } }
   *{box-sizing:border-box}
   html{scroll-behavior:smooth}
   body{margin:0; font-family:var(--body); color:var(--charcoal); background:var(--cream); line-height:1.6; -webkit-font-smoothing:antialiased; overflow-x:hidden}
