@@ -834,11 +834,12 @@
   }
   function renderCard(i){
     var r=PB.rows[i];
-    var name=r[0], mem=r[1], city=PB.cities[r[3]]||'', type=PB.types[r[4]]||'', b=PB.booths[r[5]]||{no:'',addr:''}, date=PB.dates[r[6]]||'', timing=PB.timings[r[7]]||'';
+    var name=r[0], mem=r[1], city=PB.cities[r[3]]||'', type=PB.types[r[4]]||'', b=PB.booths[r[5]]||{no:'',addr:''}, date=PB.dates[r[6]]||'', timing=PB.timings[r[7]]||'', serial=r[8]||'';
     function row(k,v,cls){ if(!v) return ''; return '<div class="pb-field"><span class="k">'+k+'</span><span class="v'+(cls?' '+cls:'')+'">'+esc(v)+'</span></div>'; }
     return '<div class="pb-card">'+
       '<div class="pb-name">'+esc(name)+'</div>'+
       '<div class="pb-mem">'+esc(mem)+'</div>'+
+      row('Serial No.',serial)+
       row('Type of Voting',type)+
       row('Allotted Booth No.',b.no,'booth')+
       row('Booth Address',b.addr)+
